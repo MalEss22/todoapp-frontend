@@ -45,15 +45,15 @@ const Signup = () => {
   }
   return (
     <>
-      <div className='signupcontainer'>
+      <div className='signupcontainer mx-auto'>
         <h2>
           SIGN UP
         </h2>
         <form onSubmit={submitHandler}>
-          <div className='Username'>
+          <div className='Username '>
             <label>Username</label>
             <Input
-            size='large'
+            size='larger'
             className='focus-within:border focus-within:border-red-500'
                 placeholder='Enter a  username' type = 'text' onChange={(e) => {setUsername(e.target.value)}} value={username}
                 // prefix={<UserOutlined />}
@@ -68,7 +68,7 @@ const Signup = () => {
           </div>
           <div>
             <p>
-                Already have an account? <a password href="/login">Login</a>
+                Already have an account? <a password href="/login" >Login</a>
             </p>
           </div>
         </form>

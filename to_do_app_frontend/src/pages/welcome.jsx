@@ -2,7 +2,12 @@ import React , {useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom';
 import './welcome.css'; // Import the CSS file
 
+
 const WelcomePage = () => {
+  const navigate = useNavigate();
+ const goToSignUp = () => {
+  navigate("/signup");
+ }
   return (
     <div className="container">
       <h1 className="title">Welcome to DoIt!</h1>
@@ -16,10 +21,9 @@ const WelcomePage = () => {
         "Small steps every day lead to big achievements."
       </p>
       <div className="button-container">
-        <button className="button">
+        <button className="button" onClick={goToSignUp}>
           Get Started
         </button>
-        
        
       </div>
     </div>

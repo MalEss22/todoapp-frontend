@@ -4,13 +4,14 @@ import React , {useEffect, useState} from 'react'
 import   './todo.module.css'
 import { backend } from '../api';
 import { getTokenFromCookie } from '../lib/utils';
+import { Button, Input, Modal } from 'antd';
 
 
 
 const TodoList = () => {
     const [tasks , settasks]=useState([]);
     const [newtask , setnewtask]=useState("");
-    //const [editedTask, setEditedTask] = useState("");
+    const [editedTask, setEditedTask] = useState("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editedTaskId, setEditedTaskId] = useState(undefined);
     const token = getTokenFromCookie();  // or getTokenFromLocalStorage(), getTokenFromSessionStorage()
@@ -58,8 +59,9 @@ const TodoList = () => {
      }
     }
     function editTask(taskId, taskText) {
+        
+        setEditedTask(taskText);
         setIsEditMode(true);
-        setnewtask(taskText);
         setEditedTaskId(taskId);
       }
 
@@ -74,101 +76,112 @@ const TodoList = () => {
         setnewtask(event.target.value)
 
     }
-    
-    async function addTask(){
-            
-        if(!isEditMode){
-            if(newtask.trim()!==""){
-            //API call to save task
-        
-            alert(token)
-    
-            try {
-            const response = await backend.post(`${import.meta.env.VITE_BACKEND_URL}/todos`,{task: newtask }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,  // Ensure this format
-                    'Content-Type': 'application/json',
-                },
-            });
-        
-            // Handle successful response
-            console.log('Protected Data:', response.data.task);
+    const editTaskHandler = async () =>{
 
-            // Update the task state array
-            settasks((prevTasks)=>([...prevTasks,{
-                id: response.data.todoId,
-                task: response.data.task
+        const newTasks = [...tasks]
+        const taskToBeEdited = newTasks.find(task => task.id === editedTaskId);
+        taskToBeEdited.task = editedTask;
 
-            }]))
-
-
-            //Add the task and the task_id to the array
-            
-            } catch (error) {
-            // Handle error
-            if (error.response && error.response.status === 401) {
-                console.error('Unauthorized. Please login again.');
-            } else {
-                console.error('An error occurred:', error.message);
-            }
-            }
-            // settasks(t =>[...t,newtask]);
-            // setnewtask("");
-            }
-        }else{
-            const newTasks = [...tasks]
-            const taskToBeEdited = newTasks.find(task => task.id === editedTaskId);
-            taskToBeEdited.task = newtask;
-
-            //API
-            try {
-                console.log(taskToBeEdited);
-                const taskId = taskToBeEdited.id;
-                const response  = await backend.put(`${import.meta.env.VITE_BACKEND_URL}/todos/${taskId}`, {
-                    task: taskToBeEdited.task,
-                    completed: taskToBeEdited.completed
-                },
-                    {
-                        headers:{
-                            'Authorization': `Bearer ${token}`,  // Ensure this format
-                            'Content-Type': 'application/json',
-                      }
+        //API
+        try {
+            console.log(taskToBeEdited);
+            const taskId = taskToBeEdited.id;
+            const response  = await backend.put(`${import.meta.env.VITE_BACKEND_URL}/todos/${taskId}`, {
+                task: taskToBeEdited.task,
+                completed: taskToBeEdited.completed
+            },
+                {
+                    headers:{
+                        'Authorization': `Bearer ${token}`,  // Ensure this format
+                        'Content-Type': 'application/json',
                     }
-                )
-               
-                
-             } 
-            
-            catch (error) {
-                if (error.response && error.response.status === 401) {
-                    console.error('Unauthorized. Please login again.');
-                  } else {
-                    console.error('An error occurred:', error.message);
-                  }
-            }
-        
+                }
+            )
 
-            //save edited task using put method
-            // modify the ui
-            
+            //Alert the user that the edit was successful or failed
+            setIsEditMode(false);
             settasks(newTasks);
             
-
+            
+            } 
+        
+        catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized. Please login again.');
+                } else {
+                console.error('An error occurred:', error.message);
+                }
         }
+
+
+        //save edited task using put method
+        // modify the ui
+        
+        settasks(newTasks);
+        
+
+
+
+    }
+    async function addTask(){
+        
+        if(newtask.trim()!==""){
+        //API call to save task
+    
+        //alert(token)
+
+        try {
+        const response = await backend.post(`${import.meta.env.VITE_BACKEND_URL}/todos`,{task: newtask}, {
+            headers: {
+                'Authorization': `Bearer ${token}`,  // Ensure this format
+                'Content-Type': 'application/json',
+            },
+        });
+    
+        // Handle successful response
+        console.log('Protected Data:', response.data.task);
+
+        // Update the task state array
+        settasks((prevTasks)=>([...prevTasks,{
+            id: response.data.todoId,
+            task: response.data.task
+
+        }]))
+
+
+        //Add the task and the task_id to the array
+        
+        } catch (error) {
+        // Handle error
+        if (error.response && error.response.status === 401) {
+            console.error('Unauthorized. Please login again.');
+        } else {
+            console.error('An error occurred:', error.message);
+        }
+        }
+        // settasks(t =>[...t,newtask]);
+        // setnewtask("");
+        }
+        
     }
 
     return (
-        <div className='container'>
-            <h1>Todo List</h1>
+        <div className='max-w-[900px] mx-auto'>
+            <h1 className='text-5xl'>Todo List</h1>
+            <Modal open={isEditMode} onOk={editTaskHandler}>
+                <Input onChange={(e)=>setEditedTask(e.target.value)} value={editedTask}/>
+            </Modal>
 
-            <div className='input'>
-                    <input 
+            <div className='flex items-center'>
+                    <Input
+                    className='!w-full text-sm'
                     type="text"
                     placeholder='Add a new task...'
                     value={newtask}
                     onChange={handleInputChange}
                      />
-                     <button 
+                     <button
+                     className='text-sm'
                       onClick={addTask} 
                      >Add</button>
             </div>
@@ -176,17 +189,20 @@ const TodoList = () => {
                 {tasks.map((task) => 
                     <li  key={task.id}>
                         <input onChange={()=>updateTask(task)} type="checkbox" />
-                       <p className=''>
+                       <p className='flex-1'>
                        {task.task}
                        </p> 
-                      <p
-                       className='edit'
+                      <div className='flex gap-4 justify-center'><Button
+                        type='primary'
                        onClick={() => editTask(task.id, task.task)}
-                      >Edit</p>
-                       <p
-                       className='delete'
+                      >Edit</Button>
+                       <Button
+                       //icon ={<DeleteOutlined />}
+                       variant='outlined'
+                       className='border-red-600 text-red-600'
                        onClick={() => deleteTask(task.id)}
-                      >Delete</p>
+                      >Delete</Button>
+                      </div>
                     </li>
                 )}
                 

@@ -48,7 +48,7 @@ const Login = () => {
   }
   return (
     <>
-      <div className='signupcontainer'>
+      <div className='signupcontainer mx-auto'>
         <h2>
      LOGIN
         </h2>

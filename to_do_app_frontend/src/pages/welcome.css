@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background-color: #f5f5f5;
+    
     text-align: center;
     padding: 20px;
   }
@@ -16,7 +16,7 @@
   
   .title {
     font-size: 3rem;
-    color: #333;
+    color: #140606;
     font-weight: bold;
   }
   

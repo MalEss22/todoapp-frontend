@@ -11,12 +11,13 @@ const App = () => {
     <div>
       {/* Routes */}
       <Routes>
+      <Route path="/" element={<WelcomePage/>}/>
         <Route path="/signup" element={<Signup/>} />
         {/* Fallback route for undefined paths */}
         {<Route path="*" element={<div>404 Page Not Found</div>} />}
         <Route path="/login" element={<Login/>}/>
         <Route path="/todos" element={<TodoList/>}/>
-        <Route path="/welcome" element={<WelcomePage/>}/>
+        
       </Routes>
 
     </div>
