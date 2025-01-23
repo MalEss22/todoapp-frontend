@@ -72,7 +72,7 @@ const Login = () => {
           </div>
           <div>
             <p>
-               Don't have an account? <a password href="/signup">Sign up</a>
+               Don't have an account? <a className='text-blue-500' password href="/signup">Sign up</a>
             </p>
           </div>
         </form>

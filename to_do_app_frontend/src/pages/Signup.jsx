@@ -4,6 +4,7 @@ import { backend } from '../api';
 import { Input } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { saveTokenToCookie } from '../lib/utils';
+import { UserOutlined } from '@ant-design/icons'
 
 const Signup = () => {
   const [username, setUsername] = useState('');
@@ -53,10 +54,10 @@ const Signup = () => {
           <div className='Username '>
             <label>Username</label>
             <Input
-            size='larger'
-            className='focus-within:border focus-within:border-red-500'
+            size='large'
+            className='focus-within:border focus-within:border-red-500 !w-full rounded-lg'
                 placeholder='Enter a  username' type = 'text' onChange={(e) => {setUsername(e.target.value)}} value={username}
-                // prefix={<UserOutlined />}
+                 prefix={<UserOutlined />}
                 />
           </div>
           <div className='password'>
@@ -68,7 +69,7 @@ const Signup = () => {
           </div>
           <div>
             <p>
-                Already have an account? <a password href="/login" >Login</a>
+                Already have an account? <a className='text-blue-500' password href="/login" >Login</a>
             </p>
           </div>
         </form>
