@@ -18,9 +18,10 @@ const TodoList = () => {
     const [editedTaskId, setEditedTaskId] = useState(undefined);
     const token = getTokenFromCookie();  // or getTokenFromLocalStorage(), getTokenFromSessionStorage()
     const [page , setPage]=useState(1);
-    const [limit, setLimit]=useState(2);
+    const [limit, setLimit]=useState(10);
     const [totalTodos, setTotalTodos]=useState();
     const [totalPages, setTotalPages]=useState(6);
+    const [taskCompleted, setTaskCompleted] = useState({});
     const navigate = useNavigate();
 
     const fetchTasks = async () => {
@@ -36,7 +37,12 @@ const TodoList = () => {
             setTotalPages(response.data.pagination.totalPages);
             setTotalTodos(response.data.pagination.totalTodos);
             setPage(response.data.pagination.page);
-
+                 // Initialize completed state for each task
+            const initialCompletedState = {};
+             response.data.todos.forEach((task) => {
+            initialCompletedState[task.id] = task.completed === 1; // Mark as true if completed
+        });
+      setTaskCompleted(initialCompletedState);
         }
         catch (error) {
             // Handle error
@@ -48,6 +54,45 @@ const TodoList = () => {
           }
         
     }
+
+    const handleCheckboxChange = async (taskToBeUpdated, completed) => {
+        // Find the task by ID
+        const taskIndex = tasks.findIndex((task) => task.id === taskToBeUpdated.id);
+        const newTasks = [...tasks]
+        newTasks[taskIndex].completed = completed;
+
+        //Update your task
+
+        
+        // Toggle the completed state
+        //const newStatus = !task.completed ? 1 : 0;  // If not completed, mark as completed, else unmark
+        
+        // Update the local state to reflect the change
+        //setTaskCompleted((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
+    
+        try {
+            // Send the updated status to the backend
+            const response = await backend.put(`${import.meta.env.VITE_BACKEND_URL}/todos/${taskToBeUpdated.id}`, {
+                task: taskToBeUpdated.task,  // Keep the task text unchanged
+                completed: taskToBeUpdated.completed,  // Update the completed field
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            alert(response.data.message);
+    
+            console.log('Todo updated successfully', response.data);
+            // Optionally, update the task in the local state again if needed
+            settasks(newTasks);
+        } catch (err) {
+            console.error('Error updating todo:', err);
+        }
+    };
+    
+
     async function deleteTask(taskId){
     try{
         const response  = await backend.delete(`${import.meta.env.VITE_BACKEND_URL}/todos/${taskId}`,
@@ -218,10 +263,15 @@ const TodoList = () => {
             {(tasks.length>0)? (<><ol className='orderedlist'>
                 {tasks.map((task) => 
                     <li  key={task.id}>
-                        <input onChange={()=>updateTask(task)} type="checkbox" />
-                       <p className='flex-1 text-left pl-3'>
+                        <input className='' type="checkbox" checked={task.completed} onChange={(e) => handleCheckboxChange(task,e.target.checked)}  />
+                       {(!task.completed)?(<p className='flex-1 text-left pl-3'>
                        {task.task}
-                       </p> 
+                       </p>):(
+                        <p className='flex-1 text-left pl-3 line-through'>
+                        {task.task}
+                        </p>
+                       )
+                       }
                       <div className='flex gap-4 justify-center'><Button
                         type='primary'
                        onClick={() => editTask(task.id, task.task)}
